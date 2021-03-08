@@ -1,29 +1,3 @@
-const canv = document.getElementById("game"),
-	ctx = canv.getContext("2d");
-
-let mouseX = 0,
-	mouseY = 0;
-
-ctx.font = "800 24px monospace";
-ctx.textBaseline = "top";
-
-const player = {
-	x: 960,
-	y: 540,
-	radius: 10,
-	direction: 0,
-	speed: 8
-};
-
-const DEGREES_PER_RAD = Math.PI * 2 / 360,
-	circle = (x, y, r) => {
-		ctx.beginPath();
-		ctx.arc(x, y, r, 0, Math.PI * 2);
-		ctx.fill();
-	},
-	randomInt = (min, max) => Math.floor(Math.random() * (max - min) + min);
-
-
 class Vector {
 	constructor(x, y, angle, length = 1) {
 		this.x1 = x;
@@ -135,58 +109,20 @@ const level = [
 	new Line(600, 900, 1200, 400)
 ];
 
-const FPS = Array.from({length: 50}, x => 1);
-ctx.lineCap = "round";
-function render() {
-	const START = performance.now();
-	ctx.fillStyle = "#2C2C2C";
-	ctx.fillRect(0, 0, 1920, 1080);
-
-	
+function performRaycast() {
 	ctx.lineWidth = 1;
+	ctx.strokeStyle = "#FFFFFF2F";
 	for (let i = 0; i < 360; i += 0.08) {
-		ctx.strokeStyle = "white";
 		const ray = new Vector(player.x, player.y, DEGREES_PER_RAD * i, 0.0001);
 		ray.cast();
 		ray.render();
 	}
+}
 
+function renderLevel() {
 	ctx.strokeStyle = "#1E90FF";
 	ctx.lineWidth = 8;
 	for (const line of level) line.render();
-
-	ctx.fillStyle = "#EB1D34";
-	ctx.beginPath();
-	ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-	ctx.fill();
-
-	update();
-	fps(START);
-	requestAnimationFrame(render);
-}
-
-function update() {
-	player.x = mouseX;
-	player.y = mouseY;
-}
-
-function fps(START) {
-	FPS.pop();
-	FPS.unshift(performance.now() - START);
-	let sum = 0;
-	for (let i = 0; i < FPS.length; i++) sum += FPS[i];
-	sum = 1000 / (sum / FPS.length);
-	ctx.fillStyle = "white";
-	ctx.fillText(Math.round(sum) + "FPS", 10, 10);
 }
 
 requestAnimationFrame(render);
-
-document.addEventListener("mousemove", e => {
-	const boundingRect = canv.getBoundingClientRect(),
-		widthRatio = canv.width / boundingRect.width,
-		heightRatio = canv.height / boundingRect.height;
-
-	mouseX = Math.max(0, Math.min(1920, (e.clientX - boundingRect.left) * widthRatio));
-	mouseY = Math.max(0, Math.min(1080, (e.clientY - boundingRect.top) * heightRatio));
-});
